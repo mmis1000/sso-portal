@@ -1,0 +1,47 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>HTML barebone</title>
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <meta name="description" content="HTML barebone">
+
+    <link rel="shortcut icon" href="/favicon.ico" type="image/vnd.microsoft.icon">
+    <link rel="icon" href="/favicon.ico" type="image/vnd.microsoft.icon">
+  </head>
+  <body>
+    now logining you in....
+    <script>
+      var sameOrigin;
+      var caller = window.opener || (window.parent === window ? null: window.parent);
+      try
+      {
+        sameOrigin = caller.location.host == window.location.host;
+      }
+      catch (e)
+      {
+        sameOrigin = false;
+      }
+      
+      var event = {{JSON.stringify(event)}};
+      if (caller && !caller.closed && sameOrigin) {
+        if (!caller.closed) {
+          try {
+            caller.postMessage(event, "*");
+          } catch (e) {
+            try {
+              caller.dispatchEvent(new MessageEvent('message', {data: event}));
+            } catch (e) {
+              try {
+                caller.onmessage({data: event});
+              } catch (e) {
+              }
+            }
+          }
+        }
+        window.close();
+      } else {
+        window.location = window.location.protocol + "//" + location.hostname + (location.port ? ':'+location.port: '') + "/";
+      }
+    </script>
+  </body>
+</html>
