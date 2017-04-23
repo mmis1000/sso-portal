@@ -5,16 +5,15 @@ var Q = require('q');
 
 var UserModelFactory = function (mongoose) {
   var userSchema, User;
-  var nooz = function () {}
   var normalizedPath = require("path").join(__dirname, "../auth");
   
   userSchema = new mongoose.Schema({
-    name: { type: String, default: 'Anonymous' },
-    
     //email: { type: String, default: '' },
     //password: { type: String, default: '' },
     setting: {},
-    username: String
+    username: String,
+    isAdmin: { type: Boolean, default: 'false' },
+    sites: [{type: mongoose.Schema.ObjectId, ref: 'site'}]
   });
   
   userSchema.plugin(findOrCreate);
@@ -42,7 +41,7 @@ var UserModelFactory = function (mongoose) {
   
   userSchema.methods.toSafeObject = function toSafeObject() {
     var obj = this.toObject();
-    delete obj.authMethods; // thet shouldn't know this
+    delete obj.authMethods; // they shouldn't know this
     return obj;
   }
   

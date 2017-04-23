@@ -1,5 +1,8 @@
 var passport = require('passport')
-  , GitHubStrategy = require('passport-github').Strategy;
+  , GitHubStrategy = require('passport-github').Strategy
+  , patchClass = require("../utils/patch_oauth_params");
+
+patchClass(GitHubStrategy);
 
 var githubAuth = {
   name: 'github',

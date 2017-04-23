@@ -10,10 +10,6 @@ function createMiddleWare(app, mountPoint, config, services) {
   app.use(passport.initialize());
   // app.use(passport.session());
   
-  middleware.use(function (req, res, next) {
-    next()
-  })
-  
   app.use(function (req, res, next) {
     if (req.session.__user__) {
       User.findById(req.session.__user__, function(err, user) {
@@ -103,6 +99,19 @@ function createMiddleWare(app, mountPoint, config, services) {
       }
     );
   })
+  
+  middleware.post('/logout', function (req, res) {
+    delete req.session.__user__;
+    res.status(200).jsonp(null);
+  })
+  
+  middleware.get('/login_status', function (req, res) {
+    if (!req.user) {
+      return res.status(401).jsonp(null);
+    }
+    res.status(200).jsonp(req.session.user);
+  })
+  
   return middleware;
 }
 module.exports = createMiddleWare;

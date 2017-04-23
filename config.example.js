@@ -13,5 +13,10 @@ module.exports = {
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
       callbackURL: "http://sso-portal-mmis1000.c9users.io/api/auth/github/callback"
     }
-  }
+  },
+  enableDbManager: true,
+  dbManagerPath: "/MongoExpress",
+  dbManagerAccount: "r00t",
+  dbManagerPassword: "dfghdftyrjhryj",
+  sessionSecret: "totally secret"
 }

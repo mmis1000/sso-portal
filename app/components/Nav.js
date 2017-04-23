@@ -43,7 +43,7 @@ class Nav extends React.Component {
             this.state.logined 
             ?
             [<ul className="nav navbar-nav" key="DashBoard">
-              <li className={this.state.path === "/DashBoard" ? "active" : ""}><Link to="/DashBoard">DashBoard</Link></li>
+              <li className={this.state.path.indexOf("/DashBoard") === 0 ? "active" : ""}><Link to="/DashBoard">DashBoard</Link></li>
             </ul>,
             <ul className="nav navbar-nav navbar-right" key="/LogOut">
               <li><a onClick={this.onLogout}>log out</a></li>

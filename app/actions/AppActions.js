@@ -12,7 +12,7 @@ class AppActions {
   }
   
   checkLogin() {
-    $.ajax({ url: '/api/login_status' })
+    $.ajax({ url: '/api/auth/login_status' })
       .done((data) => {
         this.loginStatusSuccess(data)
       })
@@ -25,7 +25,7 @@ class AppActions {
   doEmailLogin(email, password) {
     $.ajax({ 
       method: 'POST',
-      url: '/api/login/email' ,
+      url: '/api/auth/email/json' ,
       data: {email, password}
     })  
     .done((msg)=>{
@@ -41,7 +41,7 @@ class AppActions {
   doLogout() {
     $.ajax({ 
       method: 'POST',
-      url: '/api/logout' 
+      url: '/api/auth/logout' 
     })  
     .done((msg)=>{
       this.loginStatusFail();

@@ -1,6 +1,5 @@
 import React from 'react';
 import AppActions from '../actions/AppActions'
-import AppStore from '../stores/AppStore';
 
 class Login extends React.Component {
   constructor() {
@@ -8,18 +7,22 @@ class Login extends React.Component {
     this.onLogin = this.onLogin.bind(this);
     this.inputEmail = null;
     this.inputPassword = null;
-  }
-  
-  componentDidMount() {
-    if (AppStore.getState().logined) {
-      browserHistory.replace("/DashBoard")
-    }
+    this.doGithubLogin = this.doGithubLogin.bind(this);
+    this.doGoogleLogin = this.doGoogleLogin.bind(this);
   }
   
   onLogin(e) {
     e.preventDefault();
     console.log(this.inputEmail.value, this.inputPassword.value);
     AppActions.doEmailLogin(this.inputEmail.value, this.inputPassword.value)
+  }
+  
+  doGithubLogin() {
+    window.location.href = "/api/auth/github/?redirect=" + encodeURIComponent(window.location.href)
+  }
+  
+  doGoogleLogin() {
+    window.location.href = "/api/auth/google/?redirect=" + encodeURIComponent(window.location.href)
   }
   
   render() {
@@ -59,10 +62,10 @@ class Login extends React.Component {
                     or login via...
                   </div>
                   <div className="col-xs-4">
-                    <button className="btn btn-block btn-primary">github</button>
+                    <button className="btn btn-block btn-primary" onClick={this.doGithubLogin}>github</button>
                   </div>
                   <div className="col-xs-4">
-                    <button className="btn btn-block btn-primary">google</button>
+                    <button className="btn btn-block btn-primary" onClick={this.doGoogleLogin}>google</button>
                   </div>
                 </div>
               </div>

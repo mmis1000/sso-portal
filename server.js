@@ -11,6 +11,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser')
 var bodyParser = require('body-parser');
 var session = require('express-session');
+var MongoStore = require('connect-mongo')(session);
 
 var mongoose = require('mongoose');
 mongoose.Promise = Q.Promise;
@@ -29,48 +30,72 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(logger('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cookieParser());
+// app.use(cookieParser(config.sessionSecret));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(session({secret: 'wow, much secret'}));
-
-app.post('/api/login_status', function (req, res) {
-  if (!req.session.user) {
-    res.status(401);
-  }
-  res.status(200).jsonp(req.session.user);
-})
-
-app.post('/api/login/email', function (req, res) {
-  console.log(req.body);
-  if (req.body.password !== 'test') {
-    return res.status(401).jsonp(null);
-  }
-  var user = req.session.user = {
-    username: req.body.email,
-  }
-  res.status(200).jsonp(user);
-  // res.status(200).jsonp({username: 'mmis1000'});
-})
-
-app.post('/api/logout', function (req, res) {
-  req.session.user = null;
-  res.status(200).jsonp(null);
-  // res.status(200).jsonp({username: 'mmis1000'});
-})
+app.use(session({
+  resave: true,
+  secret: config.sessionSecret,
+  store: new MongoStore({ url: config.mongodbPath })
+}));
 
 var authRoute = require("./src/routes/auth")(app, '/api/auth', config);
 app.use('/api/auth', authRoute)
+
+var adminRoute = require("./src/routes/admin")(app, '/api/admin', config);
+
+app.use('/api/admin', adminRoute)
 
 app.use('/api', function (req, res) {
   res.status(404).end('api not found')
 })
 
+var mongo_express = require('mongo-express/lib/middleware');
+var mongo_express_config = require('./mongo_express_config');
+
+(function (mongo_express_config) {
+  var URL = require('url');
+  var temp = URL.parse(config.mongodbPath);
+  
+  if ((/\/\/[^\/,]+,[^\/,]+[^\/]+\//).test(config.mongodbPath)) {
+    var pathes = (/\/\/([^\/,]+,[^\/,]+[^\/]+)\//).exec(config.mongodbPath)[1].split(/,/g);
+    
+    mongo_express_config.mongodb.server = pathes.map(function (str) {
+      var temp = str.split(':');
+      mongo_express_config.mongodb.port = parseInt(temp[1]) || mongo_express_config.mongodb.port
+      return temp[0]
+    })
+    
+    mongo_express_config.mongodb.port = mongo_express_config.mongodb.port || 27017;
+  } else {
+    mongo_express_config.mongodb.server = temp.hostname;
+    mongo_express_config.mongodb.port = parseInt(temp.port) || 27017;
+  }
+  
+  console.log('current mongo_express db setting')
+  console.log(JSON.stringify(mongo_express_config.mongodb.server, 0, 4))
+  console.log(JSON.stringify(mongo_express_config.mongodb.port, 0, 4))
+  
+  if (temp.auth) {
+    mongo_express_config.mongodb.auth.push({
+      database: temp.pathname.replace(/^\//, ''),
+      username: temp.auth.split(':')[0],
+      password: decodeURIComponent(temp.auth.split(':').slice(1).join(':'))
+    })
+  }
+  
+  mongo_express_config.basicAuth.username = config.dbManagerAccount
+  mongo_express_config.basicAuth.password = config.dbManagerPassword
+   
+} (mongo_express_config));
+
+if (config.enableDbManager) {
+  app.use(config.dbManagerPath, mongo_express(mongo_express_config))
+}
 
 app.use(function(req, res) {
   const context = {};
     
-  alt.getActions('AppActions').pathChange(req.path)
   // alt.getActions('AppActions').loginStatusSuccess({username: 'mmis1000'})
   if (req.user) {
     alt.getActions('AppActions').loginStatusSuccess(req.user.toSafeObject())
@@ -78,13 +103,18 @@ app.use(function(req, res) {
     alt.getActions('AppActions').loginStatusFail(null)
   }
   
+  alt.getActions('AppActions').pathChange(req.path)
+  
   var snapshot = JSON.stringify(alt.takeSnapshot());
+  
   
   const html = renderToString(
     <StaticRouter location={req.url} context={context}>
       {routes}
     </StaticRouter>
   );
+  
+  alt.flush();
   
   
   const page = swig.renderFile('views/index.html', { html, snapshot });
