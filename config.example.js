@@ -1,4 +1,5 @@
 module.exports = {
+  port: process.env.PORT || 8080,
   mongodbPath: "mongodb://localhost/sso",
   site: "http://sso-portal-mmis1000.c9users.io/",
   auth: {

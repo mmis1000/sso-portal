@@ -24,7 +24,7 @@ var app = express();
 
 mongoose.connect(config.mongodbPath)
 
-app.set('port', process.env.PORT || 8080);
+app.set('port', config.port);
 app.engine('html', swig.renderFile);
 app.set('view engine', 'html');
 app.set('views', path.join(__dirname, 'views'));
