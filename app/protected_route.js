@@ -17,20 +17,16 @@ class ProtectedRoute extends React.Component {
       hasAccess = false;
     }
     
-    console.log(this.props.requireLogin, this.props.requireAdmin, AppStore.getState().user, hasAccess, this.props.redirectTo)
-    
     if (hasAccess) {
       return (
         <Route {...this.props}/>
       );
-    } else if (this.props.redirectTo !== '' ){
+    } else if (AppStore.getState().currentPath.indexOf(this.props.redirectTo) !== 0){
       return (
         <Redirect to={this.props.redirectTo}/>
       );
     } else {
-      return (
-        ""
-      );
+      return null;
     }
   }
 }

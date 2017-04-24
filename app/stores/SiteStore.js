@@ -31,7 +31,6 @@ class SiteStore {
   
   onSiteAdd(newSite) {
     newSite.__rev = 0;
-    console.log("add site");
     var newSites = this.state.sites.slice(0);
     newSites.push(newSite);
     this.setState({sites: newSites});

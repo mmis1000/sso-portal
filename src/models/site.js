@@ -4,6 +4,7 @@ var SiteModelFactory = function (mongoose) {
   var siteSchema = new mongoose.Schema({
     name: { type: String, default: 'Unamed Site' },
     type: { type: String, enum: ['static'], default: 'static' },
+    entry: { type: String, default: 'http://example.com/' },
     data: {}
   });
   

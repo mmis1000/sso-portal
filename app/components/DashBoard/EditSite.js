@@ -25,17 +25,15 @@ class EditSite extends React.Component {
   }
   
   onChange(state) {
-    console.log('on change')
-    console.log(state);
     this.setState(state);
   }
   
-  addSite(name, type) {
-    SiteActions.addSite(name, type)
+  addSite(name, type, entry) {
+    SiteActions.addSite(name, type, entry)
   }
   
-  updateSite(id, name, type) {
-    SiteActions.updateSite(id, name, type)
+  updateSite(id, name, type, entry) {
+    SiteActions.updateSite(id, name, type, entry)
   }
   
   removeSite(id) {

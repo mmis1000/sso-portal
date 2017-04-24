@@ -4,6 +4,7 @@ import { StaticRouter } from "react-router";
 import { renderToString } from "react-dom/server";
 var alt = require('./app/alt');
 var Q = require('q');
+var EventEmitter = require('events').EventEmitter
 
 var express = require('express');
 var path = require('path');
@@ -30,7 +31,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(logger('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
-// app.use(cookieParser(config.sessionSecret));
+app.use(cookieParser(config.sessionSecret));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
@@ -39,12 +40,16 @@ app.use(session({
   store: new MongoStore({ url: config.mongodbPath })
 }));
 
-var authRoute = require("./src/routes/auth")(app, '/api/auth', config);
+var services = new EventEmitter;
+
+var authRoute = require("./src/routes/auth")(app, '/api/auth', config, services);
 app.use('/api/auth', authRoute)
 
-var adminRoute = require("./src/routes/admin")(app, '/api/admin', config);
-
+var adminRoute = require("./src/routes/admin")(app, '/api/admin', config, services);
 app.use('/api/admin', adminRoute)
+
+var ssoRoute = require("./src/routes/sso")(app, '/api/sso', config, services);
+app.use('/api/sso', ssoRoute)
 
 app.use('/api', function (req, res) {
   res.status(404).end('api not found')
@@ -100,10 +105,12 @@ app.use(function(req, res) {
   if (req.user) {
     alt.getActions('AppActions').loginStatusSuccess(req.user.toSafeObject())
   } else {
-    alt.getActions('AppActions').loginStatusFail(null)
+    alt.getActions('AppActions').loginStatusFail(null);
   }
   
-  alt.getActions('AppActions').pathChange(req.path)
+  alt.getActions('AppActions').pathChange(req.path);
+  alt.getActions('AppActions').searchChange(req.query);
+  alt.getActions('AppActions').setDomain(config.site);
   
   var snapshot = JSON.stringify(alt.takeSnapshot());
   

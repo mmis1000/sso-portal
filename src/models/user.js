@@ -13,7 +13,7 @@ var UserModelFactory = function (mongoose) {
     setting: {},
     username: String,
     isAdmin: { type: Boolean, default: 'false' },
-    sites: [{type: mongoose.Schema.ObjectId, ref: 'site'}]
+    sites: [{type: mongoose.Schema.ObjectId, ref: 'Site'}]
   });
   
   userSchema.plugin(findOrCreate);

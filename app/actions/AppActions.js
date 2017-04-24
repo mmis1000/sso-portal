@@ -1,14 +1,19 @@
 import alt from '../alt';
-
+import QueryString from '../utils/QueryString'
 class AppActions {
   constructor() {
-    console.log('called');
     this.generateActions(
+      'domainName',
       'pathChange',
       'loginStatusSuccess',
-      'loginStatusFail'
+      'loginStatusFail',
+      'searchChange'
     );
-    console.log(this.actions);
+  }
+  
+  setDomain(domain) {
+    this.domainName(domain)
+    return true;
   }
   
   checkLogin() {
@@ -52,6 +57,7 @@ class AppActions {
   
   updatePath() {
     this.pathChange(browserHistory.location.pathname);
+    this.searchChange(QueryString(browserHistory.location.search.slice(1)))
     return true;
   }
 }

@@ -21,7 +21,6 @@ class Nav extends React.Component {
   }
 
   onChange(state) {
-    console.log(state)
     this.setState(state);
   }
   

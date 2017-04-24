@@ -1,6 +1,6 @@
 import alt from '../alt';
 
-class AppActions {
+class UserActions {
   constructor() {
     this.generateActions(
       'userLoad',
@@ -10,6 +10,15 @@ class AppActions {
   }
   
   loadUsers() {
+    /*this.userLoad([
+      {
+        id: "000000",
+        username: "fake user",
+        sites: ["58fa413e75d6fb64a23a0fa4"]
+      }
+    ])*/
+    
+    
     $.ajax({ url: '/api/admin/user'})
     .done((data) => {
       this.userLoad(data)
@@ -21,9 +30,13 @@ class AppActions {
   }
   
   updateUser(id, username, isAdmin, sites, setting) {
-    $.ajax({ url: '/api/admin/user/update', method: 'POST', data: {
-      id, username, isAdmin, sites, setting
-    }})
+    $.ajax({ url: '/api/admin/user/update', method: 'POST',
+      dataType: 'json', 
+      contentType : 'application/json',
+      data: JSON.stringify({
+        id, username, isAdmin, sites, setting
+      })
+    })
     .done((data) => {
       this.userUpdate(data)
     })
@@ -38,7 +51,7 @@ class AppActions {
       id
     }})
     .done((data) => {
-      this.userRemove({id: id})
+      this.userRemove({id})
     })
     .fail((jqXhr) => {
       toastr.warning('failed to remove user due to some error')
@@ -48,4 +61,4 @@ class AppActions {
   
 }
 
-export default alt.createActions(AppActions);
+export default alt.createActions(UserActions);

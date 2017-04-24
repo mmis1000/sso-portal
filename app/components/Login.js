@@ -1,5 +1,6 @@
 import React from 'react';
 import AppActions from '../actions/AppActions'
+import AppStore from '../stores/AppStore'
 
 class Login extends React.Component {
   constructor() {
@@ -17,12 +18,17 @@ class Login extends React.Component {
     AppActions.doEmailLogin(this.inputEmail.value, this.inputPassword.value)
   }
   
+  getRedirectPath() {
+    var query = AppStore.getState().currentSearch;
+    return query.redirect || '/DashBoard';
+  }
+  
   doGithubLogin() {
-    window.location.href = "/api/auth/github/?redirect=" + encodeURIComponent(window.location.href)
+    window.location.href = "/api/auth/github/?redirect=" + encodeURIComponent(this.getRedirectPath())
   }
   
   doGoogleLogin() {
-    window.location.href = "/api/auth/google/?redirect=" + encodeURIComponent(window.location.href)
+    window.location.href = "/api/auth/google/?redirect=" + encodeURIComponent(this.getRedirectPath())
   }
   
   render() {

@@ -21,11 +21,11 @@ class SiteActions {
     return true;
   }
   
-  addSite(name, type) {
+  addSite(name, type, entry) {
     // console.log("add site");
     // this.siteAdd({id: '' + Math.random(), name, type})
     $.ajax({ url: '/api/admin/site/add', method: 'POST', data: {
-      name, type
+      name, type, entry
     }})
     .done((data) => {
       this.siteAdd(data)
@@ -36,12 +36,12 @@ class SiteActions {
     return true;
   }
   
-  updateSite(id, name, type) {
+  updateSite(id, name, type, entry) {
     // this.siteUpdate({id, name, type})
     // return true;
     
     $.ajax({ url: '/api/admin/site/update', method: 'POST', data: {
-      id, name, type
+      id, name, type, entry
     }})
     .done((data) => {
       this.siteUpdate(data)

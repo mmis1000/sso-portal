@@ -10,14 +10,13 @@ import AppStore from './stores/AppStore';
 import NavbarStore from './stores/NavbarStore';
 import alt from './alt'
 
-console.log(__flux_state__)
 alt.bootstrap(__flux_state__)
 
 const browserHistory = window.browserHistory = createHistory()
 
 AppActions.updatePath(browserHistory.location.pathname);
 browserHistory.listen(function (location) {
-  AppActions.updatePath(location.pathname)
+  AppActions.updatePath()
 })
 
 render((

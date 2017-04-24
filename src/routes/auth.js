@@ -3,6 +3,7 @@ var passport = require('passport');
 var mongoose = require('mongoose');
 var Url = require('url');
 var User = (require("../models/user"))(mongoose);
+var Q = require("q");
 
 function createMiddleWare(app, mountPoint, config, services) {
   var middleware = new Router;
@@ -56,6 +57,9 @@ function createMiddleWare(app, mountPoint, config, services) {
     middleware.use('/' + strategy.name, subMiddleware)
     
     subMiddleware.use(function (req, res, next) {
+      if (req.query.redirect) {
+        req.session.redirect = req.query.redirect;
+      }
       next()
     })
     
@@ -63,6 +67,13 @@ function createMiddleWare(app, mountPoint, config, services) {
       User, 
       subMiddleware,
       function (req, res, next, err, user, info) {
+        function safeStr(obj) {
+          return JSON.stringify(obj).replace(/</g, '\\u003c');
+        }
+        
+        var redirectTo = req.session.redirect;
+        delete req.session.redirect;
+        
         if (err || (!user)) {
           if (!user && !info) {
             info = {message: 'verifiction failed'}
@@ -71,19 +82,30 @@ function createMiddleWare(app, mountPoint, config, services) {
           err = (err || info.message).toString();
           
           return res.render('auth_callback', {
-            event: null,
-            message: info
+            user: safeStr(null),
+            message: safeStr(info),
+            redirect: safeStr(null)
           });
         }
         
         req.user = user;
         req.session.__user__ = user._id.toString();
         
-        res.render('auth_callback', {
-          event: user.toSafeObject()
-        });
+        var waitList = []
+        services.emit('login_success', req, res, next, []);
+        
+        Q.all(waitList).then(function () {
+          res.render('auth_callback', {
+            user: safeStr(user.toSafeObject()),
+            message: safeStr(null),
+            redirect: safeStr(redirectTo)
+          });
+        })
+        
       }, 
       function (req, res, next, err, user, info) {
+        delete req.session.redirect;
+        
         if (err || (!user)) {
           if (!user && !info) {
             info = {message: 'verifiction failed'}
@@ -92,10 +114,16 @@ function createMiddleWare(app, mountPoint, config, services) {
           err = (err || info.message).toString();
           return res.status(401).json(err);
         }
+        
         req.user = user;
         req.session.__user__ = user._id.toString();
         
-        res.json(user.toSafeObject());
+        var waitList = []
+        services.emit('login_success', req, res, next, []);
+        
+        Q.all(waitList).then(function () {
+          res.json(user.toSafeObject());
+        })
       }
     );
   })

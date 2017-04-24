@@ -24,13 +24,14 @@ class Site extends React.Component {
     
     this.siteName.value = this.props.name
     this.siteType.value = this.props.type
+    this.siteEntry.value = this.props.entry
     
     this.setState({editing: false})
   }
   
   onUpdate(e) {
     e.preventDefault();
-    this.props.updateSite(this.props.id, this.siteName.value, this.siteType.value)
+    this.props.updateSite(this.props.id, this.siteName.value, this.siteType.value, this.siteEntry.value)
   }
   
   onRemove() {
@@ -70,6 +71,16 @@ class Site extends React.Component {
                         defaultValue={this.props.type}
                         placeholder="Type" 
                         ref={(siteType) => this.siteType = siteType}/>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor={this.props.id + "-entry"} className="col-sm-2 control-label">Entry</label>
+                    <div className="col-sm-10">
+                      <input type="text" className="form-control" id={this.props.id + "-entry"}
+                        onChange={this.onChange}
+                        defaultValue={this.props.entry}
+                        placeholder="Entry" 
+                        ref={(siteEntry) => this.siteEntry = siteEntry}/>
                     </div>
                   </div>
                   { 

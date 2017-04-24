@@ -1,8 +1,5 @@
 var passport = require('passport')
-  , GitHubStrategy = require('passport-github').Strategy
-  , patchClass = require("../utils/patch_oauth_params");
-
-patchClass(GitHubStrategy);
+  , GitHubStrategy = require('passport-github').Strategy;
 
 var githubAuth = {
   name: 'github',
@@ -22,7 +19,7 @@ var githubAuth = {
       function(accessToken, refreshToken, profile, done) {
         User.findOrCreate({ "authMethods.github.id": profile.id }, function (err, user) {
           if (err) return done(err);
-          console.log(profile)
+          
           user.authMethods.github = {
             id: profile.id,
             accessToken: accessToken,

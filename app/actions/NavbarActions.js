@@ -1,6 +1,6 @@
 import alt from '../alt';
 
-class FooterActions {
+class NavbarActions {
   constructor() {
     this.generateActions(
     );
@@ -11,4 +11,4 @@ class FooterActions {
   }*/
 }
 
-export default alt.createActions(FooterActions);
+export default alt.createActions(NavbarActions);
