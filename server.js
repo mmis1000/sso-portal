@@ -112,7 +112,7 @@ app.use(function(req, res) {
   alt.getActions('AppActions').searchChange(req.query);
   alt.getActions('AppActions').setDomain(config.site);
   
-  var snapshot = JSON.stringify(alt.takeSnapshot());
+  var snapshot = JSON.stringify(alt.takeSnapshot()).replace(/</g, '\\u003c');;
   
   
   const html = renderToString(
