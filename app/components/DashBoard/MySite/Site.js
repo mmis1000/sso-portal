@@ -45,7 +45,7 @@ class Site extends React.Component {
         auth_request_set $sso_login_token $upstream_http_sso_login_token;
         auth_request_set $sso_session $upstream_http_sso_session;
         
-        add_header set-cookie "sso_session=$sso_session; Max-Age=86400";
+        add_header set-cookie "sso_session=$sso_session; Max-Age=86400; Path=/";
         
         error_page 401 = "/auth_fail_\${sso_login_token}_\${sso_session}";
 
@@ -58,7 +58,7 @@ class Site extends React.Component {
         set $sso_session $2;
         
         if ($sso_session) {
-             add_header set-cookie "sso_session=$sso_session; Max-Age=86400";
+             add_header set-cookie "sso_session=$sso_session; Max-Age=86400; Path=/";
         }
        
         return 302 ${domain.replace(/\/$/, '')}/Login?redirect=${encodeURIComponent(this.props.entry)}&sso_token=\${sso_login_token};
@@ -77,7 +77,7 @@ class Site extends React.Component {
         proxy_cache sso_session;
         proxy_cache_valid  200 1h;
         proxy_cache_valid  any 0;
-        proxy_cache_key "\${host}\${uri}?\${cookie_sso_session}";
+        proxy_cache_key "\${cookie_sso_session}";
     }
 `
                           }
