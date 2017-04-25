@@ -23,8 +23,8 @@ function createMiddleWare(app, mountPoint, config, services) {
   function getNewSession(site) {
     var session = new Sso_session({
       site: site,
-      token: makeid(16),
-      session: makeid(16),
+      token: makeid(32),
+      session: makeid(32),
       user: null
     })
     
