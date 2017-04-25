@@ -49,6 +49,7 @@ function createMiddleWare(app, mountPoint, config, services) {
   }
   
   function bindSession(session, user) {
+    session.token = "";
     session.user = user._id;
     return session.save()
   }
