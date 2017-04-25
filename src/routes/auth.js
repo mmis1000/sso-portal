@@ -111,7 +111,7 @@ function createMiddleWare(app, mountPoint, config, services) {
             info = {message: 'verifiction failed'}
           }
           
-          err = (err || info.message).toString();
+          err = (err ? err.message : info.message).toString();
           return res.status(401).json(err);
         }
         
