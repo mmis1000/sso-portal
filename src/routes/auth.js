@@ -79,11 +79,13 @@ function createMiddleWare(app, mountPoint, config, services) {
             info = {message: 'verifiction failed'}
           }
           
-          err = (err || info.message).toString();
+          var message = info ? info.message : null;
+          message = message || err.message;
+          message = message || 'buggggggg';
           
           return res.render('auth_callback', {
             user: safeStr(null),
-            message: safeStr(info),
+            message: safeStr(message),
             redirect: safeStr(null)
           });
         }
@@ -111,8 +113,11 @@ function createMiddleWare(app, mountPoint, config, services) {
             info = {message: 'verifiction failed'}
           }
           
-          err = (err ? err.message : info.message).toString();
-          return res.status(401).json(err);
+          var message = info ? info.message : null;
+          message = message || err.message;
+          message = message || 'buggggggg';
+          
+          return res.status(401).json(message);
         }
         
         req.user = user;
