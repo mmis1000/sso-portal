@@ -44,8 +44,10 @@ class Site extends React.Component {
                 
         auth_request_set $sso_login_token $upstream_http_sso_login_token;
         auth_request_set $sso_session $upstream_http_sso_session;
+        auth_request_set $auth_cache_status $upstream_cache_status;
         
         add_header set-cookie "sso_session=$sso_session; Max-Age=86400; Path=/";
+        add_header X-Auth-Cache-Status $auth_cache_status;
         
         error_page 401 = "/auth_fail_\${sso_login_token}_\${sso_session}";
 
