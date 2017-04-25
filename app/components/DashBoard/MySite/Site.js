@@ -72,7 +72,8 @@ class Site extends React.Component {
         proxy_set_header X-Original-URI $request_uri;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        
+        proxy_set_header Content-Length "";
+         
         proxy_cache sso_session;
         proxy_cache_valid  200 1h;
         proxy_cache_valid  any 0;
