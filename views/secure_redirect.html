@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Mmis sso</title>
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <meta name="description" content="HTML barebone">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/vnd.microsoft.icon">
+    <link rel="icon" href="/favicon.ico" type="image/vnd.microsoft.icon">
+  </head>
+  <body>
+    
+    <form id="A" method="post" action="{{action}}">
+      <input name="token" type="hidden" value="{{token}}">
+      <input name="redirect" type="hidden" value="{{redirect}}">
+    </form>
+    <script>
+      var site = {{site|safe}};
+      var sso_token = {{sso_token|safe}}
+      var redirect ={{redirect|safe}}
+      var endpoint = {{endpoint|safe}}
+      
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", endpoint, true);
+      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhr.withCredentials = true;
+      xhr.onreadystatechange = function alertContents(httpRequest) {
+          if (xhr.readyState === 4) {
+              if (xhr.status === 200) {
+                  try {
+                    var data = JSON.parse(xhr.responseText);
+                    window.location.href = data.redirect;
+                  } catch (e) {
+                    alert(e.message)
+                  }
+              } else {
+                  alert("error code: " + xhr.status);
+              }
+          }
+      }
+      
+      var builder = function(obj) {
+        return Object.keys(obj).map(function (key) {
+          return key + "=" + encodeURIComponent(obj[key]);
+        }).join("&")
+      }
+      xhr.send(builder({
+        sso_token: sso_token,
+        site: site,
+        redirect: redirect
+      }))
+    </script>
+  </body>
+</html>

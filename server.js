@@ -42,6 +42,11 @@ app.use(session({
 
 var services = new EventEmitter;
 
+app.use(function(req, res, next) {
+    res.messages = [];
+    next();
+})
+
 var authRoute = require("./src/routes/auth")(app, '/api/auth', config, services);
 app.use('/api/auth', authRoute)
 
@@ -111,8 +116,10 @@ app.use(function(req, res) {
   alt.getActions('AppActions').pathChange(req.path);
   alt.getActions('AppActions').searchChange(req.query);
   alt.getActions('AppActions').setDomain(config.site);
-  
+  alt.getActions('AppActions').addMessages(res.messages);
+  // console.log(res.messages)
   var snapshot = JSON.stringify(alt.takeSnapshot()).replace(/</g, '\\u003c');;
+  // console.log(snapshot)
   
   
   const html = renderToString(

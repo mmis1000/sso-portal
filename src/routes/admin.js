@@ -51,7 +51,8 @@ function createMiddleWare(app, mountPoint, config, services) {
     var site = new Site({
       name: req.body.name,
       type: req.body.type,
-      entry: req.body.entry
+      entry: req.body.entry,
+      domain: req.body.domain
     })
     
     site.save()
@@ -95,6 +96,7 @@ function createMiddleWare(app, mountPoint, config, services) {
       site.name = req.body.name;
       site.type = req.body.type;
       site.entry = req.body.entry;
+      site.domain = req.body.domain;
       
       return site.save();
     })

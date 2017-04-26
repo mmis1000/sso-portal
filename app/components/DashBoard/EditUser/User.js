@@ -24,6 +24,21 @@ class User extends React.Component {
     SiteStore.listen(this.onSiteChange);
   }
   
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.__rev !== this.props.__rev) {
+      this.state.sites.forEach((site)=>{
+        this.sites[site.id].checked = false;
+      })
+      
+      nextProps.sites.forEach((site)=>{
+        this.sites[site].checked = true;
+      })
+      
+      this.admin.checked = this.props.isAdmin;
+      this.setState({editing: false});
+    }
+  }
+  
   componentWillUnmount() {
     SiteStore.unlisten(this.onSiteChange)
   }

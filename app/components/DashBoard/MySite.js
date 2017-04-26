@@ -16,6 +16,7 @@ class MySite extends React.Component {
     )
   }
   
+  
   componentDidMount() {
     SiteStore.listen(this.onChange)
     AppStore.listen(this.onChange)
@@ -42,7 +43,7 @@ class MySite extends React.Component {
             return this.state.sites.find((i)=>i.id === site)
           })
           .map((site)=>{
-            return <Site key={site.id + '-' + site.__rev} {...site}/>
+            return <Site key={site.id} {...site}/>
           })
         }
         <div className="panel panel-default">

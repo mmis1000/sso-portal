@@ -5,6 +5,7 @@ var SiteModelFactory = function (mongoose) {
     name: { type: String, default: 'Unamed Site' },
     type: { type: String, enum: ['static'], default: 'static' },
     entry: { type: String, default: 'http://example.com/' },
+    domain: { type: String, default: 'http://example.com' },
     data: {}
   });
   

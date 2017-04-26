@@ -28,12 +28,12 @@ class EditSite extends React.Component {
     this.setState(state);
   }
   
-  addSite(name, type, entry) {
-    SiteActions.addSite(name, type, entry)
+  addSite(...arg) {
+    SiteActions.addSite(...arg)
   }
   
-  updateSite(id, name, type, entry) {
-    SiteActions.updateSite(id, name, type, entry)
+  updateSite(...arg) {
+    SiteActions.updateSite(...arg)
   }
   
   removeSite(id) {
@@ -46,7 +46,7 @@ class EditSite extends React.Component {
         {
           this.state.sites.map((site)=>{
             console.log(site.id + "-" + site.__rev)
-            return <Site key={site.id + "-" + site.__rev} updateSite={this.updateSite} siteRemove={this.removeSite} {...site}/>
+            return <Site key={site.id} updateSite={this.updateSite} siteRemove={this.removeSite} {...site}/>
           })
         }
         <AddSite addSite={this.addSite}/>

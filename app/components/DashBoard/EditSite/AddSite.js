@@ -13,11 +13,12 @@ class AddSite extends React.Component {
     this.siteName.value = "";
     this.siteType.value = "";
     this.siteEntry.value = "";
+    this.siteDomain.value = "";
   }
   
   onAdd(e) {
     e.preventDefault();
-    this.props.addSite(this.siteName.value, this.siteType.value, this.siteEntry.value)
+    this.props.addSite(this.siteName.value, this.siteType.value, this.siteEntry.value, this.siteDomain.value)
   }
   
   render() {
@@ -51,6 +52,14 @@ class AddSite extends React.Component {
                       <input type="text" className="form-control" id={this.state.random + "-entry"}
                         placeholder="Entry" 
                         ref={(siteEntry) => this.siteEntry = siteEntry}/>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor={this.state.random + "-domain"} className="col-sm-2 control-label">Domain</label>
+                    <div className="col-sm-10">
+                      <input type="text" className="form-control" id={this.state.random + "-domain"}
+                        placeholder="Domain" 
+                        ref={(siteDomain) => this.siteDomain = siteDomain}/>
                     </div>
                   </div>
                   <div className="form-group">

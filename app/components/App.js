@@ -13,6 +13,10 @@ class App extends React.Component {
   componentDidMount() {
     // AppStore.listen(this.onChange);
     AppActions.checkLogin();
+    this.state.messages.forEach(function (message) {
+      AppActions.inform(message.type, message.text, message.redirect, 2000);
+    })
+    AppActions.clearMessage()
   }
   /*
   componentWillUnmount() {

@@ -48,13 +48,10 @@ class EditUser extends React.Component {
       <div className="list-group">
         {this.state.users.map((user)=>{
           return <User 
-            key={user.id + user.__rev} 
-            isAdmin={user.isAdmin} 
-            username={user.username} 
-            id={user.id} 
-            sites={user.sites}
+            key={user.id} 
             updateUser={this.updateUser}
             removeUser={this.removeUser}
+            {...user}
             />
         })}
       </div>

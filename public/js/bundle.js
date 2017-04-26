@@ -23,7 +23,7 @@ var AppActions = (function () {
   function AppActions() {
     _classCallCheck(this, AppActions);
 
-    this.generateActions('domainName', 'pathChange', 'loginStatusSuccess', 'loginStatusFail', 'searchChange');
+    this.generateActions('domainName', 'pathChange', 'loginStatusSuccess', 'loginStatusFail', 'searchChange', 'newMessage', 'emptyMessage');
   }
 
   _createClass(AppActions, [{
@@ -80,6 +80,53 @@ var AppActions = (function () {
     value: function updatePath() {
       this.pathChange(browserHistory.location.pathname);
       this.searchChange((0, _utilsQueryString2['default'])(browserHistory.location.search.slice(1)));
+      return true;
+    }
+  }, {
+    key: 'inform',
+    value: function inform(level, text, redirect) {
+      if (level === 'error') {
+        toastr.error(text);
+      }
+      if (level === 'warning') {
+        toastr.warning(text);
+      }
+      if (level === 'info' || level === 'success') {
+        toastr.success(text);
+      }
+      if (redirect) {
+        this.doRedirect(redirect);
+      }
+      return true;
+    }
+  }, {
+    key: 'addMessage',
+    value: function addMessage(message) {
+      this.newMessage(message);
+      return true;
+    }
+  }, {
+    key: 'addMessages',
+    value: function addMessages(messages) {
+      var _this4 = this;
+
+      messages.forEach(function (message) {
+        _this4.addMessage(message);
+      });
+      return true;
+    }
+  }, {
+    key: 'clearMessage',
+    value: function clearMessage() {
+      this.emptyMessage();
+      return true;
+    }
+  }, {
+    key: 'doRedirect',
+    value: function doRedirect(redirect, delay) {
+      setTimeout(function () {
+        browserHistory.replace(redirect);
+      }, delay || 0);
       return true;
     }
   }]);
@@ -157,13 +204,13 @@ var SiteActions = (function () {
     }
   }, {
     key: 'addSite',
-    value: function addSite(name, type, entry) {
+    value: function addSite(name, type, entry, domain) {
       var _this2 = this;
 
       // console.log("add site");
       // this.siteAdd({id: '' + Math.random(), name, type})
       $.ajax({ url: '/api/admin/site/add', method: 'POST', data: {
-          name: name, type: type, entry: entry
+          name: name, type: type, entry: entry, domain: domain
         } }).done(function (data) {
         _this2.siteAdd(data);
       }).fail(function (jqXhr) {
@@ -173,14 +220,14 @@ var SiteActions = (function () {
     }
   }, {
     key: 'updateSite',
-    value: function updateSite(id, name, type, entry) {
+    value: function updateSite(id, name, type, entry, domain) {
       var _this3 = this;
 
       // this.siteUpdate({id, name, type})
       // return true;
 
       $.ajax({ url: '/api/admin/site/update', method: 'POST', data: {
-          id: id, name: name, type: type, entry: entry
+          id: id, name: name, type: type, entry: entry, domain: domain
         } }).done(function (data) {
         _this3.siteUpdate(data);
       }).fail(function (jqXhr) {
@@ -362,6 +409,10 @@ var App = (function (_React$Component) {
     value: function componentDidMount() {
       // AppStore.listen(this.onChange);
       _actionsAppActions2['default'].checkLogin();
+      this.state.messages.forEach(function (message) {
+        _actionsAppActions2['default'].inform(message.type, message.text, message.redirect, 2000);
+      });
+      _actionsAppActions2['default'].clearMessage();
     }
 
     /*
@@ -556,13 +607,13 @@ var EditSite = (function (_React$Component) {
     }
   }, {
     key: 'addSite',
-    value: function addSite(name, type, entry) {
-      _actionsSiteActions2['default'].addSite(name, type, entry);
+    value: function addSite() {
+      _actionsSiteActions2['default'].addSite.apply(_actionsSiteActions2['default'], arguments);
     }
   }, {
     key: 'updateSite',
-    value: function updateSite(id, name, type, entry) {
-      _actionsSiteActions2['default'].updateSite(id, name, type, entry);
+    value: function updateSite() {
+      _actionsSiteActions2['default'].updateSite.apply(_actionsSiteActions2['default'], arguments);
     }
   }, {
     key: 'removeSite',
@@ -579,7 +630,7 @@ var EditSite = (function (_React$Component) {
         null,
         this.state.sites.map(function (site) {
           console.log(site.id + "-" + site.__rev);
-          return _react2['default'].createElement(_EditSiteSite2['default'], _extends({ key: site.id + "-" + site.__rev, updateSite: _this.updateSite, siteRemove: _this.removeSite }, site));
+          return _react2['default'].createElement(_EditSiteSite2['default'], _extends({ key: site.id, updateSite: _this.updateSite, siteRemove: _this.removeSite }, site));
         }),
         _react2['default'].createElement(_EditSiteAddSite2['default'], { addSite: this.addSite })
       );
@@ -632,12 +683,13 @@ var AddSite = (function (_React$Component) {
       this.siteName.value = "";
       this.siteType.value = "";
       this.siteEntry.value = "";
+      this.siteDomain.value = "";
     }
   }, {
     key: "onAdd",
     value: function onAdd(e) {
       e.preventDefault();
-      this.props.addSite(this.siteName.value, this.siteType.value, this.siteEntry.value);
+      this.props.addSite(this.siteName.value, this.siteType.value, this.siteEntry.value, this.siteDomain.value);
     }
   }, {
     key: "render",
@@ -722,6 +774,24 @@ var AddSite = (function (_React$Component) {
                   "div",
                   { className: "form-group" },
                   _react2["default"].createElement(
+                    "label",
+                    { htmlFor: this.state.random + "-domain", className: "col-sm-2 control-label" },
+                    "Domain"
+                  ),
+                  _react2["default"].createElement(
+                    "div",
+                    { className: "col-sm-10" },
+                    _react2["default"].createElement("input", { type: "text", className: "form-control", id: this.state.random + "-domain",
+                      placeholder: "Domain",
+                      ref: function (siteDomain) {
+                        return _this.siteDomain = siteDomain;
+                      } })
+                  )
+                ),
+                _react2["default"].createElement(
+                  "div",
+                  { className: "form-group" },
+                  _react2["default"].createElement(
                     "div",
                     { className: "col-sm-4 col-sm-offset-4" },
                     _react2["default"].createElement(
@@ -792,9 +862,16 @@ var Site = (function (_React$Component) {
   }
 
   _createClass(Site, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.updateData = this.props.updateData;
+    key: "componentWillReceiveProps",
+    value: function componentWillReceiveProps(nextProps) {
+      if (nextProps.__rev !== this.props.__rev) {
+        this.siteName.value = nextProps.name;
+        this.siteType.value = nextProps.type;
+        this.siteEntry.value = nextProps.entry;
+        this.siteDomain.value = nextProps.domain;
+
+        this.setState({ editing: false });
+      }
     }
   }, {
     key: "onChange",
@@ -809,6 +886,7 @@ var Site = (function (_React$Component) {
       this.siteName.value = this.props.name;
       this.siteType.value = this.props.type;
       this.siteEntry.value = this.props.entry;
+      this.siteDomain.value = this.props.domain;
 
       this.setState({ editing: false });
     }
@@ -816,7 +894,7 @@ var Site = (function (_React$Component) {
     key: "onUpdate",
     value: function onUpdate(e) {
       e.preventDefault();
-      this.props.updateSite(this.props.id, this.siteName.value, this.siteType.value, this.siteEntry.value);
+      this.props.updateSite(this.props.id, this.siteName.value, this.siteType.value, this.siteEntry.value, this.siteDomain.value);
     }
   }, {
     key: "onRemove",
@@ -916,6 +994,26 @@ var Site = (function (_React$Component) {
                       } })
                   )
                 ),
+                _react2["default"].createElement(
+                  "div",
+                  { className: "form-group" },
+                  _react2["default"].createElement(
+                    "label",
+                    { htmlFor: this.props.id + "-domain", className: "col-sm-2 control-label" },
+                    "Domain"
+                  ),
+                  _react2["default"].createElement(
+                    "div",
+                    { className: "col-sm-10" },
+                    _react2["default"].createElement("input", { type: "text", className: "form-control", id: this.props.id + "-domain",
+                      onChange: this.onChange,
+                      defaultValue: this.props.domain,
+                      placeholder: "Domain",
+                      ref: function (siteDomain) {
+                        return _this.siteDomain = siteDomain;
+                      } })
+                  )
+                ),
                 this.state.editing ? _react2["default"].createElement(
                   "div",
                   { className: "form-group" },
@@ -959,6 +1057,8 @@ module.exports = exports["default"];
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -1045,15 +1145,11 @@ var EditUser = (function (_React$Component) {
         'div',
         { className: 'list-group' },
         this.state.users.map(function (user) {
-          return _react2['default'].createElement(_EditUserUser2['default'], {
-            key: user.id + user.__rev,
-            isAdmin: user.isAdmin,
-            username: user.username,
-            id: user.id,
-            sites: user.sites,
+          return _react2['default'].createElement(_EditUserUser2['default'], _extends({
+            key: user.id,
             updateUser: _this.updateUser,
             removeUser: _this.removeUser
-          });
+          }, user));
         })
       );
     }
@@ -1115,6 +1211,24 @@ var User = (function (_React$Component) {
       _storesSiteStore2['default'].listen(this.onSiteChange);
     }
   }, {
+    key: 'componentWillReceiveProps',
+    value: function componentWillReceiveProps(nextProps) {
+      var _this = this;
+
+      if (nextProps.__rev !== this.props.__rev) {
+        this.state.sites.forEach(function (site) {
+          _this.sites[site.id].checked = false;
+        });
+
+        nextProps.sites.forEach(function (site) {
+          _this.sites[site].checked = true;
+        });
+
+        this.admin.checked = this.props.isAdmin;
+        this.setState({ editing: false });
+      }
+    }
+  }, {
     key: 'componentWillUnmount',
     value: function componentWillUnmount() {
       _storesSiteStore2['default'].unlisten(this.onSiteChange);
@@ -1132,15 +1246,15 @@ var User = (function (_React$Component) {
   }, {
     key: 'onAbort',
     value: function onAbort(ev) {
-      var _this = this;
+      var _this2 = this;
 
       ev.preventDefault();
       this.state.sites.forEach(function (site) {
-        _this.sites[site.id].checked = false;
+        _this2.sites[site.id].checked = false;
       });
 
       this.props.sites.forEach(function (site) {
-        _this.sites[site].checked = true;
+        _this2.sites[site].checked = true;
       });
 
       this.admin.checked = this.props.isAdmin;
@@ -1173,7 +1287,7 @@ var User = (function (_React$Component) {
   }, {
     key: 'render',
     value: function render() {
-      var _this2 = this;
+      var _this3 = this;
 
       return _react2['default'].createElement(
         'div',
@@ -1198,8 +1312,8 @@ var User = (function (_React$Component) {
             'form',
             { className: 'form-horizontal', onSubmit: this.onSave },
             this.state.sites.map(function (site) {
-              console.log(_this2.props.sites, site.id);
-              var hasSite = _this2.props.sites.indexOf(site.id) >= 0;
+              console.log(_this3.props.sites, site.id);
+              var hasSite = _this3.props.sites.indexOf(site.id) >= 0;
               return _react2['default'].createElement(
                 'div',
                 { className: 'form-group', key: site.id },
@@ -1214,9 +1328,9 @@ var User = (function (_React$Component) {
                       null,
                       _react2['default'].createElement('input', { type: 'checkbox',
                         defaultChecked: hasSite,
-                        onClick: _this2.onEditStart,
+                        onClick: _this3.onEditStart,
                         ref: function (el) {
-                          _this2.sites[site.id] = el;
+                          _this3.sites[site.id] = el;
                         }
                       }),
                       site.name,
@@ -1244,7 +1358,7 @@ var User = (function (_React$Component) {
                       defaultChecked: this.props.isAdmin,
                       onClick: this.onEditStart,
                       ref: function (el) {
-                        _this2.admin = el;
+                        _this3.admin = el;
                       }
                     }),
                     'Admin Mode'
@@ -1373,7 +1487,7 @@ var MySite = (function (_React$Component) {
             return i.id === site;
           });
         }).map(function (site) {
-          return _react2['default'].createElement(_MySiteSite2['default'], _extends({ key: site.id + '-' + site.__rev }, site));
+          return _react2['default'].createElement(_MySiteSite2['default'], _extends({ key: site.id }, site));
         }),
         _react2['default'].createElement(
           'div',
@@ -1428,16 +1542,35 @@ var _storesAppStore = require('../../../stores/AppStore');
 
 var _storesAppStore2 = _interopRequireDefault(_storesAppStore);
 
+var getStaticSiteText = function getStaticSiteText(domain, entry, id) {
+  return '    location / {\n        auth_request /auth;\n                \n        auth_request_set $sso_login_token $upstream_http_sso_login_token;\n        auth_request_set $sso_session $upstream_http_sso_session;\n        auth_request_set $auth_cache_status $upstream_cache_status;\n        \n        add_header set-cookie "sso_session=$sso_session; Max-Age=86400; Path=/";\n        add_header X-Auth-Cache-Status $auth_cache_status;\n        \n        error_page 401 = "/auth_fail_${sso_login_token}_${sso_session}";\n\n        proxy_pass http://example.com;\n    }\n        \n    location ~ /auth_fail_([^_]*)_([^_]*) {\n        internal;\n        set $sso_login_token $1;\n        set $sso_session $2;\n        \n        if ($sso_session) {\n             add_header set-cookie "sso_session=$sso_session; Max-Age=86400; Path=/";\n        }\n        proxy_pass ' + domain.replace(/\/$/, '') + '/api/sso/secure_redirect/' + id + '?redirect=' + encodeURIComponent(entry) + '&sso_token=${sso_login_token};\n        # return 302 ' + domain.replace(/\/$/, '') + '/Login?redirect=' + encodeURIComponent(entry) + '&sso_token=${sso_login_token};\n    }\n\n    location = /auth {\n        internal;\n\n        proxy_pass ' + domain.replace(/\/$/, '') + '/api/sso/check/' + id + ';\n        proxy_pass_request_body off;\n        proxy_set_header X-Original-URI $request_uri;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header Content-Length "";\n         \n        proxy_cache sso_session;\n        proxy_cache_valid  200 1h;\n        proxy_cache_valid  any 0;\n        proxy_cache_key "${cookie_sso_session}";\n    }';
+};
+
 var Site = (function (_React$Component) {
   _inherits(Site, _React$Component);
 
   function Site() {
     _classCallCheck(this, Site);
 
-    _get(Object.getPrototypeOf(Site.prototype), 'constructor', this).apply(this, arguments);
+    _get(Object.getPrototypeOf(Site.prototype), 'constructor', this).call(this);
+    this.state = { hidden: true };
+    this.toggle = this.toggle.bind(this);
   }
 
   _createClass(Site, [{
+    key: 'toggle',
+    value: function toggle(e) {
+      e.preventDefault();
+      this.setState({ hidden: !this.state.hidden });
+    }
+  }, {
+    key: 'componentWillReceiveProps',
+    value: function componentWillReceiveProps(nextProps) {
+      if (nextProps.__rev !== this.props.__rev) {
+        this.setState(this.state);
+      }
+    }
+  }, {
     key: 'render',
     value: function render() {
       var domain = _storesAppStore2['default'].getState().domain;
@@ -1519,7 +1652,25 @@ var Site = (function (_React$Component) {
                     )
                   )
                 ),
-                this.props.type === "static" ? _react2['default'].createElement(
+                _react2['default'].createElement(
+                  'div',
+                  { className: 'form-group' },
+                  _react2['default'].createElement(
+                    'label',
+                    { className: 'col-sm-2 control-label' },
+                    'Domain'
+                  ),
+                  _react2['default'].createElement(
+                    'div',
+                    { className: 'col-sm-10' },
+                    _react2['default'].createElement(
+                      'p',
+                      { className: 'form-control-static' },
+                      this.props.domain
+                    )
+                  )
+                ),
+                !this.props.type === "static" || this.state.hidden ? "" : _react2['default'].createElement(
                   'div',
                   { className: 'form-group' },
                   _react2['default'].createElement(
@@ -1528,9 +1679,14 @@ var Site = (function (_React$Component) {
                     _react2['default'].createElement(
                       'pre',
                       null,
-                      '\n    location / {\n        auth_request /auth;\n                \n        auth_request_set $sso_login_token $upstream_http_sso_login_token;\n        auth_request_set $sso_session $upstream_http_sso_session;\n        auth_request_set $auth_cache_status $upstream_cache_status;\n        \n        add_header set-cookie "sso_session=$sso_session; Max-Age=86400; Path=/";\n        add_header X-Auth-Cache-Status $auth_cache_status;\n        \n        error_page 401 = "/auth_fail_${sso_login_token}_${sso_session}";\n\n        proxy_pass http://example.com;\n    }\n        \n    location ~ /auth_fail_([^_]*)_([^_]*) {\n        internal;\n        set $sso_login_token $1;\n        set $sso_session $2;\n        \n        if ($sso_session) {\n             add_header set-cookie "sso_session=$sso_session; Max-Age=86400; Path=/";\n        }\n       \n        return 302 ' + domain.replace(/\/$/, '') + '/Login?redirect=' + encodeURIComponent(this.props.entry) + '&sso_token=${sso_login_token};\n    }\n\n    location = /auth {\n        internal;\n\n        proxy_pass ' + domain.replace(/\/$/, '') + '/api/sso/check/' + this.props.id + ';\n        proxy_pass_request_body     off;\n        proxy_set_header X-Original-URI $request_uri;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header Content-Length "";\n         \n        proxy_cache sso_session;\n        proxy_cache_valid  200 1h;\n        proxy_cache_valid  any 0;\n        proxy_cache_key "${cookie_sso_session}";\n    }\n'
+                      getStaticSiteText(domain, this.props.entry, this.props.id)
                     )
                   )
+                ),
+                this.props.type === "static" ? _react2['default'].createElement(
+                  'button',
+                  { onClick: this.toggle, className: 'btn btn-default' },
+                  this.state.hidden ? "Show proxy setting" : "Hide proxy setting"
                 ) : ""
               )
             )
@@ -1545,6 +1701,9 @@ var Site = (function (_React$Component) {
 
 exports['default'] = Site;
 module.exports = exports['default'];
+/*
+*/ /*
+   */
 
 },{"../../../stores/AppStore":22,"react":"react"}],15:[function(require,module,exports){
 'use strict';
@@ -2239,7 +2398,8 @@ var AppStore = (function () {
       currentPath: '/',
       currentSearch: {},
       user: null,
-      logined: false
+      logined: false,
+      messages: []
     };
   }
 
@@ -2286,6 +2446,20 @@ var AppStore = (function () {
           user: user
         });
       }
+    }
+  }, {
+    key: 'onNewMessage',
+    value: function onNewMessage(message) {
+      this.setState(Object.assign({}, this.state, {
+        messages: this.state.messages.concat([message])
+      }));
+    }
+  }, {
+    key: 'onEmptyMessage',
+    value: function onEmptyMessage(message) {
+      this.setState(Object.assign({}, this.state, {
+        messages: []
+      }));
     }
   }]);
 

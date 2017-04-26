@@ -7,7 +7,9 @@ class AppActions {
       'pathChange',
       'loginStatusSuccess',
       'loginStatusFail',
-      'searchChange'
+      'searchChange',
+      'newMessage',
+      'emptyMessage'
     );
   }
   
@@ -58,6 +60,47 @@ class AppActions {
   updatePath() {
     this.pathChange(browserHistory.location.pathname);
     this.searchChange(QueryString(browserHistory.location.search.slice(1)))
+    return true;
+  }
+  
+  
+  inform(level, text, redirect) {
+    if (level === 'error') {
+      toastr.error(text)
+    }
+    if (level === 'warning') {
+      toastr.warning(text)
+    }
+    if (level === 'info' || level === 'success') {
+      toastr.success(text)
+    }
+    if (redirect) {
+      this.doRedirect(redirect)
+    }
+    return true;
+  }
+  
+  addMessage(message) {
+    this.newMessage(message);
+    return true;
+  }
+  
+  addMessages(messages) {
+    messages.forEach((message)=>{
+      this.addMessage(message);
+    })
+    return true;
+  }
+  
+  clearMessage() {
+    this.emptyMessage();
+    return true;
+  }
+  
+  doRedirect(redirect, delay) {
+    setTimeout(() => {
+      browserHistory.replace(redirect);
+    }, delay || 0)
     return true;
   }
 }
