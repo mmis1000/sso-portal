@@ -2,6 +2,7 @@ import React from 'react';
 import AppStore from '../../../stores/AppStore'
 
 var getStaticSiteText = (domain, entry, id)=>{
+  var secureFlag = domain.slice(0, 5) === "https" ? "; Secure" : "";
   return `    location / {
         auth_request /auth;
                 
@@ -9,7 +10,7 @@ var getStaticSiteText = (domain, entry, id)=>{
         auth_request_set $sso_session $upstream_http_sso_session;
         auth_request_set $auth_cache_status $upstream_cache_status;
         
-        add_header set-cookie "sso_session=$sso_session; Max-Age=86400; Path=/";
+        add_header set-cookie "sso_session=$sso_session; Max-Age=86400; Path=/; HttpOnly${secureFlag}";
         add_header X-Auth-Cache-Status $auth_cache_status;
         
         error_page 401 = "/auth_fail_\${sso_login_token}_\${sso_session}";
@@ -23,7 +24,7 @@ var getStaticSiteText = (domain, entry, id)=>{
         set $sso_session $2;
         
         if ($sso_session) {
-             add_header set-cookie "sso_session=$sso_session; Max-Age=86400; Path=/";
+             add_header set-cookie "sso_session=$sso_session; Max-Age=86400; Path=/; HttpOnly${secureFlag}";
         }
         proxy_pass ${domain.replace(/\/$/, '')}/api/sso/secure_redirect/${id}?redirect=${encodeURIComponent(entry)}&sso_token=\${sso_login_token};
         # return 302 ${domain.replace(/\/$/, '')}/Login?redirect=${encodeURIComponent(entry)}&sso_token=\${sso_login_token};
