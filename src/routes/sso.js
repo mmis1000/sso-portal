@@ -104,23 +104,25 @@ function createMiddleWare(app, mountPoint, config, services) {
           throw "bad"
         }
         
-        if (req.user && checkAccess(req.user, session.site._id)) {
-          return bindSession(session, req.user)
+        if (req.user) {
+          if (checkAccess(req.user, session.site._id)) {
+            return bindSession(session, req.user)
+          } else {
+            res.messages.push({
+              type: "error",
+              text: "You don't have access to this site.",
+              redirect: "/Login"
+            })
+            throw "bad"
+          }
         } else {
-          res.messages.push({
-            type: "error",
-            text: "You don't have access to this site.",
-            redirect: "/Login"
-          })
-          return ""
+          throw "";
         }
       })
       .then(function (session) {
         res.redirect(req.query.redirect);
-        return "resolved"
       })
       .catch(function (message) {
-        console.log('bad requests due to ', message, res.messages)
         if (message === "bad") {
           Sso_session
           .deleteMany({_id: token})
