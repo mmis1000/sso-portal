@@ -36,6 +36,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
   resave: true,
+  saveUninitialized: true,
   secret: config.sessionSecret,
   store: new MongoStore({ url: config.mongodbPath })
 }));
