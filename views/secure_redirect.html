@@ -9,11 +9,7 @@
     <link rel="icon" href="/favicon.ico" type="image/vnd.microsoft.icon">
   </head>
   <body>
-    
-    <form id="A" method="post" action="{{action}}">
-      <input name="token" type="hidden" value="{{token}}">
-      <input name="redirect" type="hidden" value="{{redirect}}">
-    </form>
+    now logging you in...
     <script>
       var site = {{site|safe}};
       var sso_token = {{sso_token|safe}}
@@ -29,7 +25,13 @@
               if (xhr.status === 200) {
                   try {
                     var data = JSON.parse(xhr.responseText);
-                    window.location.href = data.redirect;
+                    setTimeout(function () {
+                      if (data.redirect) {
+                        window.location.href = data.redirect;
+                      } else {
+                        window.location.reload()
+                      }
+                    }, 1000)
                   } catch (e) {
                     alert(e.message)
                   }

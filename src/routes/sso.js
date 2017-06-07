@@ -231,7 +231,10 @@ function createMiddleWare(app, mountPoint, config, services) {
     .populate("site")
     .then((session)=>{
       if (!session) {
-        return
+        delete req.session.sso_token[req.params.site];
+        return res.json({
+          redirect: null
+        });
       };
       
       var origin = req.headers.origin;
