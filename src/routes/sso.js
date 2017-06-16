@@ -29,7 +29,10 @@ function createMiddleWare(app, mountPoint, config, services) {
       user: null
     })
     
-    return session.save()
+    return session.save().then(function(doc) {
+      // console.log('new session saved %j', doc.toObject())
+      return doc;
+    })
   }
   
   function getSession(site, session_key) {
@@ -78,6 +81,8 @@ function createMiddleWare(app, mountPoint, config, services) {
     if (req.query.site && req.session.sso_token[req.query.site]) {
       site_id = req.query.site
       token = req.session.sso_token[req.query.site]
+      
+      // console.log('Login with token: ' + token + ' for ' + site_id)
       
       req.session.loginFor = site_id;
       
@@ -178,6 +183,10 @@ function createMiddleWare(app, mountPoint, config, services) {
   })
 
   middleware.get('/check/:site', function (req, res, next) {
+    if (req.headers['x-original-uri'] === "/favicon.ico") {
+      return res.end('ok')
+    }
+    
     req.session.sso_token = req.session.sso_token || {}
     getSession(req.params.site, req.cookies.sso_session)
     .then((session)=>{
@@ -203,6 +212,8 @@ function createMiddleWare(app, mountPoint, config, services) {
       if (!haveAccess) {
         res.status(401);
       }
+      // console.log('Updating session cookie to ' + session.session)
+      // console.log('Sending session token ' + session.token)
       res.header("sso-session", session.session);
       res.header("sso-login-token", session.token);
       res.end(haveAccess ? 'allow': 'denied')
@@ -231,7 +242,8 @@ function createMiddleWare(app, mountPoint, config, services) {
     .populate("site")
     .then((session)=>{
       if (!session) {
-        delete req.session.sso_token[req.params.site];
+        res.header('Access-Control-Allow-Credentials', true);
+        res.header('Access-Control-Allow-Origin', req.headers.origin);
         return res.json({
           redirect: null
         });
@@ -251,6 +263,8 @@ function createMiddleWare(app, mountPoint, config, services) {
       }
     })
     .catch(function (err) {
+      res.header('Access-Control-Allow-Credentials', true);
+      res.header('Access-Control-Allow-Origin', '*');
       res.status(500).end(err.stack);
     })
   })
