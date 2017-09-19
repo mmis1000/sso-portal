@@ -19,5 +19,6 @@ module.exports = {
   dbManagerPath: "/MongoExpress",
   dbManagerAccount: "r00t",
   dbManagerPassword: "dfghdftyrjhryj",
-  sessionSecret: "totally secret"
+  sessionSecret: "totally secret",
+  trustProxy: "loopback"
 }

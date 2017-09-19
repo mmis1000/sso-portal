@@ -28,6 +28,9 @@ app.set('port', config.port);
 app.engine('html', swig.renderFile);
 app.set('view engine', 'html');
 app.set('views', path.join(__dirname, 'views'));
+if (config.trustProxy) {
+  app.set('trust proxy', config.trustProxy);
+}
 
 app.use(logger('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -38,7 +41,10 @@ app.use(session({
   resave: true,
   saveUninitialized: true,
   secret: config.sessionSecret,
-  store: new MongoStore({ url: config.mongodbPath })
+  store: new MongoStore({ url: config.mongodbPath }),
+  cookie: {
+    secure: config.site.search('https') === 0
+  }
 }));
 
 var services = new EventEmitter;
