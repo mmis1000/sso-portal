@@ -7,9 +7,90 @@
     <meta name="description" content="HTML barebone">
     <link rel="shortcut icon" href="/favicon.ico" type="image/vnd.microsoft.icon">
     <link rel="icon" href="/favicon.ico" type="image/vnd.microsoft.icon">
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.2/normalize.min.css" rel="stylesheet" type="text/css" />
+    <link href="//fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome-animation/0.1.0/font-awesome-animation.css" />
+    <style type="text/css">
+      html, body {
+        background: #000;
+      }
+      .wrapper-out, .background {
+        position:fixed;
+        top:0px;
+        left:0px;
+        width:100%;
+        height: 100%;
+      }
+      
+      .background {
+        filter: blur(5px);
+      	background-image: url({{sso_site}}/img/auth_bg_1.jpg);
+      	background-size: cover;
+      	background-repeat: no-repeat;
+      }
+      
+      .wrapper {
+        width:200px;
+        height: 100px;
+        border-radius: 16px;
+        background: #f7f7f7;
+        background: rgba(249, 249, 249, 0.6);
+        line-height: 55px;
+        text-align: center;
+        font-size: 30px;
+        font-family: 'Roboto', sans-serif;
+        padding: 50px 0px;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        color: #555;	-webkit-box-shadow: 0px 0px 54px 0px rgba(0,0,0,0.9);
+        
+        -webkit-box-shadow: 0px 0px 0px 0px rgba(255, 255, 255, 0.9);
+        -moz-box-shadow: 0px 0px 0px 0px rgba(255, 255, 255, 0.9);
+        box-shadow: 0px 0px 0px 0px rgba(255, 255, 255, 0.9);
+        
+        -webkit-animation: shadow-shake 4s linear infinite;
+        animation: shadow-shake 4s linear infinite;
+      }
+      @keyframes -webkit-shadow-shake {
+        0% {
+          -webkit-box-shadow: 0px 0px 0px 0px rgba(255, 255, 255, 0.9);
+          box-shadow: 0px 0px 0px 0px rgba(255, 255, 255, 0.9);
+        }
+        
+        100% {
+          -webkit-box-shadow: 0px 0px 20px 0px rgba(255, 255, 255, 0.9);
+          box-shadow: 0px 0px 20px 0px rgba(127, 255, 127, 0.9);
+        }
+      }
+      @keyframes shadow-shake {
+        0% {
+          -webkit-box-shadow: 0px 0px 0px 0px rgba(255, 255, 255, 0.9);
+          -moz-box-shadow: 0px 0px 0px 0px rgba(255, 255, 255, 0.9);
+          box-shadow: 0px 0px 0px 0px rgba(255, 255, 255, 0.9);
+        }
+        
+        100% {
+          -webkit-box-shadow: 0px 0px 20px 0px rgba(255, 255, 255, 0.9);
+          -moz-box-shadow: 0px 0px 20px 0px rgba(255, 255, 255, 0.9);
+          box-shadow: 0px 0px 20px 0px rgba(127, 255, 127, 0.9);
+        }
+      }
+    </style>
   </head>
   <body>
-    now logging you in...
+    <div class="background"></div>
+    <div class="wrapper-out" style="display:table;">
+      <div style="display:table-cell;vertical-align:middle;">
+        <div class="wrapper" style="margin-left:auto;margin-right:auto;">
+          <i class="fa fa-lock fa-2x" style="color:lightgreen" aria-hidden="true"></i>
+           <br>
+          <i class="fa fa-spinner faa-spin animated"></i>
+          Login...
+        </div>
+      </div>
+    </div>
     <script>
       var site = {{site|safe}};
       var sso_token = {{sso_token|safe}}
@@ -31,7 +112,7 @@
                       } else {
                         window.location.reload()
                       }
-                    }, 5000)
+                    }, 1000)
                   } catch (e) {
                     alert(e.message)
                   }

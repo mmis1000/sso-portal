@@ -22,7 +22,9 @@ var config = require('./config');
 
 var app = express();
 
-mongoose.connect(config.mongodbPath)
+mongoose.connect(config.mongodbPath, {
+  useMongoClient: true
+})
 
 app.set('port', config.port);
 app.engine('html', swig.renderFile);

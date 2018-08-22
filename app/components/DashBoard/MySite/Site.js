@@ -2,7 +2,7 @@ import React from 'react';
 import AppStore from '../../../stores/AppStore'
 
 var getStaticSiteText = (domain, entry, id)=>{
-  var secureFlag = domain.slice(0, 5) === "https" ? "; Secure" : "";
+  var secureFlag = entry.slice(0, 5) === "https" ? "; Secure" : "";
   return `    location / {
         auth_request /auth;
                 

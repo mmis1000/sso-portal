@@ -1,0 +1,9 @@
+{
+  "apps" : [{
+    "name"        : "sso",
+    "script"      : "./entry.js",
+    "watch" : ["js", "coffee"],
+    "ignore_watch" : ["node_modules"],
+    "exec_mode"   : "fork",
+  }]
+}

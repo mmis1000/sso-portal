@@ -100,7 +100,8 @@ function createMiddleWare(app, mountPoint, config, services) {
           res.render('auth_callback', {
             user: safeStr(user.toSafeObject()),
             message: safeStr(null),
-            redirect: safeStr(redirectTo)
+            redirect: safeStr(redirectTo),
+            sso_site: config.site
           });
         })
         

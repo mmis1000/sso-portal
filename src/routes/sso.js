@@ -30,7 +30,6 @@ function createMiddleWare(app, mountPoint, config, services) {
     })
     
     return session.save().then(function(doc) {
-      // console.log('new session saved %j', doc.toObject())
       return doc;
     })
   }
@@ -81,8 +80,6 @@ function createMiddleWare(app, mountPoint, config, services) {
     if (req.query.site && req.session.sso_token[req.query.site]) {
       site_id = req.query.site
       token = req.session.sso_token[req.query.site]
-      
-      // console.log('Login with token: ' + token + ' for ' + site_id)
       
       req.session.loginFor = site_id;
       
@@ -193,22 +190,28 @@ function createMiddleWare(app, mountPoint, config, services) {
       return Sso_session.populate(session, {path:"user"})
     })
     .then((session)=>{
-      if (checkAccess(session.user, session.site)) {
+      if (!session.user) {
+        return [
+          session.save(),
+          Promise.resolve(false)
+        ]
+      } else if (checkAccess(session.user, session.site)) {
         return [
           session.save(), 
           Promise.resolve(true)
         ]
       } else {
+        console.log(session.toObject());
         return [
           session
             .remove()
-            .then(()=>
-              getNewSession(req.params.site)), 
+            .then(()=>getNewSession(req.params.site)), 
           Promise.resolve(false)
         ]
       }
     })
     .spread(function (session, haveAccess) {
+      console.log('do response')
       if (!haveAccess) {
         res.status(401);
       }
@@ -229,6 +232,7 @@ function createMiddleWare(app, mountPoint, config, services) {
       return JSON.stringify(obj).replace(/</g, '\\u003c');
     }
     res.render('secure_redirect.html', {
+      sso_site: config.site,
       site: safeStr(req.params.site),
       sso_token: safeStr(req.query.sso_token),
       redirect: safeStr(req.query.redirect),
