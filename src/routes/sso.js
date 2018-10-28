@@ -181,6 +181,7 @@ function createMiddleWare(app, mountPoint, config, services) {
 
   middleware.get('/check/:site', function (req, res, next) {
     if (req.headers['x-original-uri'] === "/favicon.ico") {
+      res.header('sso_session', req.cookies.sso_session)
       return res.end('ok')
     }
     
